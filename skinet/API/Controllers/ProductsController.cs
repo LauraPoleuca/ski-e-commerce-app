@@ -13,7 +13,9 @@ public class ProductsController(IGenericRepository<Product> repo): ControllerBas
     public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? brand, string? type, string? sort)
     {
         var spec = new ProductSpecification(brand, type, sort);
+
         var products = await repo.ListAsync(spec);
+
         return Ok(products);
     }
 
@@ -21,10 +23,9 @@ public class ProductsController(IGenericRepository<Product> repo): ControllerBas
     public async Task<ActionResult<Product>> GetProduct(int id)
     {
         var product = await repo.GetByIdAsync(id);
-        if(product == null)
-        {
-            return NotFound();
-        }
+
+        if(product == null) return NotFound();
+       
         return product;
     }
 
@@ -32,10 +33,12 @@ public class ProductsController(IGenericRepository<Product> repo): ControllerBas
     public async Task<ActionResult<Product>> CreateProduct(Product product)
     {
         repo.Add(product);
+
         if(await repo.SaveAllAsync())
         {
             return CreatedAtAction("GetProduct", new {id=product.Id}, product);
         }
+
         return BadRequest("Problem creating product");
     }
 
@@ -46,11 +49,14 @@ public class ProductsController(IGenericRepository<Product> repo): ControllerBas
         {
             return BadRequest("Cannot update this product");
         }
+
         repo.Update(product);
+
         if(await repo.SaveAllAsync())
         {
             return NoContent();
         }
+
         return BadRequest("Problem updating the product");
     }
 
@@ -58,29 +64,33 @@ public class ProductsController(IGenericRepository<Product> repo): ControllerBas
     public async Task<ActionResult> DeleteProduct(int id)
     {
         var product = await repo.GetByIdAsync(id);
+
         if(product == null) return NotFound();
-        repo.Remove(product);   
+
+        repo.Remove(product);
+
         if(await repo.SaveAllAsync())
         {
             return NoContent();
         }
+        
         return BadRequest("Problem deleting the product");
     }
 
     [HttpGet("brands")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
     {
-        //TODO: Implement method
+        var spec = new BrandListSpecification();
 
-        return Ok(); 
+        return Ok(await repo.ListAsync(spec)); 
     }
 
     [HttpGet("types")]
     public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
     {
-        //TODO: Implement method
+        var spec = new TypeListSpecification();
 
-        return Ok();
+        return Ok(await repo.ListAsync(spec));
     }
     private bool ProductExists(int id)
     {

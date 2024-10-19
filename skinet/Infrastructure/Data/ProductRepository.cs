@@ -1,7 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Globalization;
 
 namespace Infrastructure.Data
 {
@@ -38,31 +37,36 @@ namespace Infrastructure.Data
                 "priceDesc" => query.OrderByDescending(x => x.Price),
                 _ => query.OrderBy(x => x.Name)
             };
+            
             return await query.ToListAsync();
         }
 
-            public bool ProductExists(int id)
-            {
-                return context.Products.Any(x => x.Id == id);
-            }
+        public bool ProductExists(int id)
+        {
+            return context.Products.Any(x => x.Id == id);
+        }
 
-            public async Task<bool> SaveChangesAsync()
-            {
-                return await context.SaveChangesAsync() > 0;
-            }
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await context.SaveChangesAsync() > 0;
+        }
 
-            public void UpdateProduct(Product product)
-            {
-                context.Entry(product).State = EntityState.Modified;
-            }
+        public void UpdateProduct(Product product)
+        {
+            context.Entry(product).State = EntityState.Modified;
+        }
 
-            public async Task<IReadOnlyList<string>> GetBrandsAsync()
-            {
-                return await context.Products.Select(x => x.Brand).Distinct().ToListAsync();
-            }
-            public async Task<IReadOnlyList<string>> GetTypesAsync()
-            {
-                return await context.Products.Select(x => x.Type).Distinct().ToListAsync();
-            }
+        public async Task<IReadOnlyList<string>> GetBrandsAsync()
+        {
+            return await context.Products.Select(x => x.Brand)
+                .Distinct()
+                .ToListAsync();
+        }
+        public async Task<IReadOnlyList<string>> GetTypesAsync()
+        {
+            return await context.Products.Select(x => x.Type)
+                .Distinct()
+                .ToListAsync();
         }
     }
+}
